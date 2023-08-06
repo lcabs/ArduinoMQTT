@@ -22,10 +22,12 @@ IPAddress server(192, 168, 18, 168);
 int SerialPrint = 1;
 long lastReconnectAttempt = 0;
 const int WDTrelay = 8;
+const int buzzer = 27;
 
 void callback(char* topic, byte* payload, unsigned int length);
 void subscribetoAll();
 void checkspayload();
+void buzzerDecreasing();
 
 void callback(char* topic, byte* payload, unsigned int length)
 {
@@ -73,6 +75,8 @@ void checkspayload(String x)
     if (x == "buzzeron")
       {
         Serial.println("BUZZER ATIVADO");
+        buzzerDecreasing();
+        
       }  
     if (x == "buzzeroff")
       {
@@ -96,13 +100,32 @@ void checkspayload(String x)
       }  
 }
 
+void buzzerDecreasing()
+  {
+      for (int i = 0; i <= 20; i++) 
+      {
+          digitalWrite(buzzer,HIGH);
+          delay(50*i);
+          digitalWrite(buzzer,LOW); 
+          delay(50*i);
+      }
+      for (int i = 0; i <= 3; i++) 
+      {
+          digitalWrite(buzzer,HIGH);
+          delay(100);
+          digitalWrite(buzzer,LOW); 
+          delay(300);
+      }
+  }
 
 void setup()
 {
   Serial.begin(9600);
   Serial.println("Serial on!");
   pinMode(WDTrelay,OUTPUT);
+  pinMode(buzzer,OUTPUT);
   digitalWrite(WDTrelay,LOW);
+  digitalWrite(buzzer,LOW);
   client.setServer(server, 1883);
   client.setCallback(callback);
   Ethernet.begin(mac, ip);
