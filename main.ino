@@ -21,6 +21,7 @@ IPAddress server(192, 168, 18, 168);
 
 int SerialPrint = 1;
 long lastReconnectAttempt = 0;
+const int WDTrelay = 8;
 
 void callback(char* topic, byte* payload, unsigned int length);
 void subscribetoAll();
@@ -75,7 +76,23 @@ void checkspayload(String x)
       }  
     if (x == "buzzeroff")
       {
-        Serial.println("BUZZER DESATIVADO");
+      Serial.println("BUZZER DESATIVADO");
+      }  
+    if (x == "poweron")
+      {
+      Serial.println("POWERING ON!");
+      client.publish("lcabs1993/arduino","CPU On!");   
+      digitalWrite(WDTrelay,HIGH);
+      delay(1000);
+      digitalWrite(WDTrelay,LOW);   
+      }  
+    if (x == "poweroff")
+      {
+      Serial.println("POWERING OFF!");
+      client.publish("lcabs1993/arduino","CPU Hard Reset!");
+      digitalWrite(WDTrelay,HIGH);
+      delay(5000);
+      digitalWrite(WDTrelay,LOW);     
       }  
 }
 
@@ -84,6 +101,8 @@ void setup()
 {
   Serial.begin(9600);
   Serial.println("Serial on!");
+  pinMode(WDTrelay,OUTPUT);
+  digitalWrite(WDTrelay,LOW);
   client.setServer(server, 1883);
   client.setCallback(callback);
   Ethernet.begin(mac, ip);
